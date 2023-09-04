@@ -1,7 +1,14 @@
 import "./App.scss";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 // pages
-import { Home, LoginForm, CartPage, Checkout } from "./pages/index";
+import {
+  Home,
+  LoginForm,
+  CartPage,
+  Checkout,
+  HomeCategory,
+  DetailProduct,
+} from "./pages/index";
 import AboutPage from "./pages/AboutPage/AboutPage";
 import ContactPage from "./pages/ContactPage/ContactPage";
 // components
@@ -19,6 +26,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="cart" element={<CartPage />} />
+          <Route path="category" element={<HomeCategory />} />
+          <Route path="detail" element={<DetailProduct />} />
           <Route path="about-us" element={<AboutPage />} />
           <Route path="contact" element={<ContactPage />} />
           <Route path="checkout" element={<Checkout />} />

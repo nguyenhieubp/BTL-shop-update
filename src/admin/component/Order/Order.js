@@ -1,14 +1,10 @@
-// Order.js
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import "./Order.css";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteOrders, getAllOrders } from "../../../store/orderSlice";
 import { Button, Input, Modal, Table } from "antd";
 
 const Order = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { confirm } = Modal;
   const { listOrder } = useSelector((state) => state.order);
   const [orders, setOrders] = useState([]);
@@ -33,12 +29,10 @@ const Order = () => {
     order.customerName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Hàm xóa đơn hàng
   const deleteOrder = (id) => {
     dispatch(deleteOrders(id));
   };
 
-  // Hàm xử lý sự kiện click của nút Delete
   const showDeleteConfirm = (id) => {
     confirm({
       title: "Bạn có chắc chắn muốn xóa đơn hàng này không?",
@@ -63,7 +57,15 @@ const Order = () => {
   const convertUTCToVietnamTime = (utcDate) => {
     const utcTime = new Date(utcDate);
     const vietnamTime = new Date(utcTime.getTime() + 7 * 60 * 60 * 1000);
-    return vietnamTime.toISOString();
+
+    const day = String(vietnamTime.getDate()).padStart(2, "0");
+    const month = String(vietnamTime.getMonth() + 1).padStart(2, "0");
+    const year = vietnamTime.getFullYear();
+    const hours = String(vietnamTime.getHours()).padStart(2, "0");
+    const minutes = String(vietnamTime.getMinutes()).padStart(2, "0");
+    const seconds = String(vietnamTime.getSeconds()).padStart(2, "0");
+
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
   };
 
   const dataSource = filteredOrders.map((x) => ({
@@ -71,13 +73,7 @@ const Order = () => {
     customerName: x.customerName,
     phone: x.phone,
     address: x.address,
-    dateCreated: convertUTCToVietnamTime(x.dateCreated), // Chuyển đổi ở đây
-    product:
-      Array.isArray(x.detail) &&
-      x.detail.map(
-        (item) =>
-          `Sản phẩm : ${item.title}, Số lượng : ${item.quantity}, Giá : ${item.price}`
-      ),
+    dateCreated: convertUTCToVietnamTime(x.dateCreated),
     actions: (
       <div className="flex gap-3">
         <Button type="primary" onClick={() => showDetail(x.id)}>
@@ -112,18 +108,31 @@ const Order = () => {
       key: "dateCreated",
     },
     {
-      title: "Sản phẩm",
-      dataIndex: "product",
-      key: "product",
-    },
-    {
       title: "Hành động",
       dataIndex: "actions",
       key: "actions",
     },
   ];
 
-  const colums2 = [
+  const dataSource2 = filteredOrders
+    .find((x) => x.id === id)
+    ?.detail?.map((x) => ({
+      key: x.id,
+      product: (
+        <div className="flex gap-x-4">
+          <img src={x.images} className="w-28 rounded-md" />
+          {x.title}
+        </div>
+      ),
+      customerName: filteredOrders.find((x) => x.id === id).customerName,
+      phone: filteredOrders.find((x) => x.id === id).phone,
+      address: filteredOrders.find((x) => x.id === id).address,
+      price: Number(x.price).toLocaleString(),
+      quantity: x.quantity,
+      total: (Number(x.price) * x.quantity).toLocaleString(),
+    }));
+
+  const columns2 = [
     {
       title: "Sản phẩm",
       dataIndex: "product",
@@ -161,48 +170,29 @@ const Order = () => {
     },
   ];
 
-  const dataSource2 = filteredOrders
-    .find((x) => x.id === id)
-    ?.detail?.map((x) => ({
-      key: x.id,
-      product: (
-        <div className="flex gap-x-4">
-          <img src={x.images} className="w-28 rounded-md" />
-          {x.title}
-        </div>
-      ),
-      customerName: filteredOrders.find((x) => x.id === id).customerName,
-      phone: filteredOrders.find((x) => x.id === id).phone,
-      address: filteredOrders.find((x) => x.id === id).address,
-      price: Number(x.price).toLocaleString(),
-      quantity: x.quantity,
-      total: (Number(x.price) * x.quantity).toLocaleString(),
-    }));
-
   const totalPrice = filteredOrders
     .find((x) => x.id === id)
     ?.detail?.reduce((acc, o) => acc + parseInt(o.price) * o.quantity, 0);
 
   return (
     <div>
-      <Input.Search
+      <Input
         size="large"
         placeholder="Tìm kiếm..."
-        allowClear
-        onSearch={(value) => handleSearchChange(value)}
-        className="w-1/2"
+        onChange={(e) => handleSearchChange(e.target.value)}
       />
-      <Table dataSource={dataSource} columns={columns} className="mt-6" />
+      <Table dataSource={dataSource} columns={columns} />
       <Modal
         title="Chi tiết đơn hàng"
         width={"80%"}
-        open={isModalOpen}
+        visible={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
       >
-        <Table dataSource={dataSource2} columns={colums2} className="mt-6" />
+        <Table dataSource={dataSource2} columns={columns2} />
+        {/* Assuming you want to display the totalPrice */}
         <div style={{ fontSize: 20, color: "red" }}>
-          Tổng tiền : {totalPrice} $
+          Tổng tiền : {Number(totalPrice).toLocaleString()} $
         </div>
       </Modal>
     </div>

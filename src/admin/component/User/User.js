@@ -50,7 +50,6 @@ const User = () => {
   const dataSource = filteredUsers.map((x) => ({
     key: x.id,
     email: x.email,
-    password: x.password,
     actions: (
       <div className="action-buttons">
         <Button
@@ -76,11 +75,6 @@ const User = () => {
       title: "Email",
       dataIndex: "email",
       key: "email",
-    },
-    {
-      title: "Mật khẩu",
-      dataIndex: "password",
-      key: "password",
     },
     {
       title: "Hành động",

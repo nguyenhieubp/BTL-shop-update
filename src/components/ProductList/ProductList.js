@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { STATUS } from "../../utils/status";
 import "./ProductList.scss";
-import { setModalData, setIsModalVisible } from "../../store/modalSlice";
 import SingleProduct from "../SingleProduct/SingleProduct";
 import { useSelector, useDispatch } from "react-redux";
 import { formatPrice } from "../../utils/helpers";
@@ -9,7 +8,6 @@ import Loader from "../Loader/Loader";
 import Error from "../Error/Error";
 import { Button, Carousel, Divider, Input, Pagination, Select } from "antd";
 import { sliderImages } from "../../utils/images";
-import { Footer } from "antd/es/layout/layout";
 import { FaShippingFast, FaTicketAlt } from "react-icons/fa";
 import {
   AiOutlineArrowRight,
@@ -17,9 +15,13 @@ import {
   AiOutlineDollarCircle,
   AiOutlineTags,
 } from "react-icons/ai";
+import { getAllCategory } from "../../store/categorySlice";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ProductList = ({ products, status }) => {
   const dispatch = useDispatch();
+  const navigation = useNavigate();
   const { isModalVisible } = useSelector((state) => state.modal);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,16 +31,21 @@ const ProductList = ({ products, status }) => {
   const [itemOffset, setItemOffset] = useState(0);
   const [productsPerPage] = useState(5);
 
-  const viewModalHandler = (data) => {
-    dispatch(setModalData(data));
-    dispatch(setIsModalVisible(true));
+  useEffect(() => {
+    dispatch(getAllCategory());
+  }, []);
+
+  const categories = useSelector((state) => state.category.category);
+
+  const buyProduct = (data) => {
+    navigation("/detail", { state: { data } });
   };
 
   const filteredProducts = products
     .filter(
       (product) =>
         product.title?.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        product.category?.toLowerCase().includes(category.toLowerCase())
+        product.category?.name.toLowerCase().includes(category.toLowerCase())
     )
     .sort((a, b) => {
       if (sortOrder === "lowToHigh") {
@@ -68,6 +75,10 @@ const ProductList = ({ products, status }) => {
   if (status === STATUS.ERROR) return <Error />;
   if (status === STATUS.LOADING) return <Loader />;
 
+  const openCategoryProduct = (item) => {
+    navigation("/category", { state: { data: item } });
+  };
+
   return (
     <>
       <section className="product">
@@ -79,56 +90,18 @@ const ProductList = ({ products, status }) => {
         </Carousel>
         <div className="px-44">
           <div className="grid grid-cols-5 gap-x-36 py-16">
-            <div className="w-full h-72 flex justify-center items-center bg-blue-200 rounded-full">
-              <img
-                src="https://html.weblearnbd.net/shofy-prv/shofy/assets/img/product/category/product-cat-1.png"
-                className="w-40 h-40"
-              />
-            </div>
-            <div className="w-full h-72 flex justify-center items-center bg-blue-200 rounded-full">
-              <img
-                src="https://html.weblearnbd.net/shofy-prv/shofy/assets/img/product/category/product-cat-2.png"
-                className="w-40 h-40"
-              />
-            </div>
-            <div className="w-full h-72 flex justify-center items-center bg-blue-200 rounded-full">
-              <img
-                src="https://html.weblearnbd.net/shofy-prv/shofy/assets/img/product/category/product-cat-3.png"
-                className="w-40 h-40"
-              />
-            </div>
-            <div className="w-full h-72 flex justify-center items-center bg-blue-200 rounded-full">
-              <img
-                src="https://html.weblearnbd.net/shofy-prv/shofy/assets/img/product/category/product-cat-4.png"
-                className="w-40 h-40"
-              />
-            </div>
-            <div className="w-full h-72 flex justify-center items-center bg-blue-200 rounded-full">
-              <img
-                src="https://html.weblearnbd.net/shofy-prv/shofy/assets/img/product/category/product-cat-5.png"
-                className="w-40 h-40"
-              />
-            </div>
-            <div className="text-center mt-4">
-              <div className="font-bold">Headphones</div>
-              <div>20 sản phẩm</div>
-            </div>
-            <div className="text-center mt-4">
-              <div className="font-bold">Mobile Phone</div>
-              <div>20 sản phẩm</div>
-            </div>
-            <div className="text-center mt-4">
-              <div className="font-bold">CPU Heat Pipes</div>
-              <div>20 sản phẩm</div>
-            </div>
-            <div className="text-center mt-4">
-              <div className="font-bold">Smart Watch</div>
-              <div>20 sản phẩm</div>
-            </div>
-            <div className="text-center mt-4">
-              <div className="font-bold">With Bluetooth</div>
-              <div>20 sản phẩm</div>
-            </div>
+            {categories
+              .filter((cat) => cat.isShowHome === true)
+              .map((item) => (
+                <div onClick={() => openCategoryProduct(item)}>
+                  <div className="w-full h-72 flex justify-center items-center bg-blue-200 rounded-full">
+                    <img src={item.image} className="w-40 h-40" />
+                  </div>
+                  <div className="text-center mt-4">
+                    <div className="font-bold">{item.name}</div>
+                  </div>
+                </div>
+              ))}
           </div>
           <div className="grid grid-cols-4 gap-x-3">
             <div className="bg-[#F6F7F9] rounded-md px-2 py-8 grid grid-cols-4">
@@ -194,22 +167,6 @@ const ProductList = ({ products, status }) => {
                   },
                 ]}
               />
-              <Select
-                placeholder="Danh mục sản phẩm"
-                allowClear
-                size="large"
-                onChange={(value) => setCategory(value)}
-                options={[
-                  {
-                    value: "IPhone",
-                    label: "IPhone",
-                  },
-                  {
-                    value: "SamSung",
-                    label: "SamSung",
-                  },
-                ]}
-              />
             </div>
             <Divider orientation="left">Danh sách sản phẩm</Divider>
             <div className="grid grid-cols-4 gap-10">
@@ -217,7 +174,7 @@ const ProductList = ({ products, status }) => {
                 <div
                   className="product-item bg-white border border-gray-200 border-solid rounded-md"
                   key={product.id}
-                  onClick={() => viewModalHandler(product)}
+                  onClick={() => buyProduct(product)}
                 >
                   <div className="product-item-img">
                     <img
@@ -228,7 +185,7 @@ const ProductList = ({ products, status }) => {
                   </div>
                   <div className="px-10 py-4">
                     <div className="mt-3 text-slate-400">
-                      {product.category}
+                      {product.category.name}
                     </div>
                     <h6 className="product-item-title text-black capitalize  font-bold fs-15">
                       {product.title}
@@ -455,7 +412,6 @@ const ProductList = ({ products, status }) => {
                       <div
                         className="product-item bg-white border border-gray-200 border-solid rounded-md"
                         key={product.id}
-                        onClick={() => viewModalHandler(product)}
                       >
                         <div className="product-item-img">
                           <img
@@ -466,7 +422,7 @@ const ProductList = ({ products, status }) => {
                         </div>
                         <div className="px-10 py-4">
                           <div className="mt-3 text-slate-400">
-                            {product.category}
+                            {product.category.name}
                           </div>
                           <h6 className="product-item-title text-black capitalize  font-bold fs-15">
                             {product.title}

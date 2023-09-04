@@ -48,7 +48,8 @@ const productSlice = createSlice({
       state.status = action.payload;
     },
     addProduct(state, action) {
-      state.data.push(action.payload);
+      console.log(action.payload);
+      // state.data.push(action.payload);
     },
     deleteProduct(state, action) {
       state.data = state.data.filter(
@@ -107,6 +108,7 @@ export const createProduct = (product) => async (dispatch) => {
       product
     );
     dispatch(addProduct(response.data));
+    dispatch(fetchProducts()); //
   } catch (error) {
     console.error(error);
   }

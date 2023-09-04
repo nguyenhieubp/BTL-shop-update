@@ -9,9 +9,11 @@ import { Button, Input, Modal, Table } from "antd";
 const Product = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { confirm } = Modal;
-  const products = useSelector((state) => state.product.data);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const products = useSelector((state) => state.product.data);
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -49,12 +51,6 @@ const Product = () => {
     category: x.category.name,
     actions: (
       <div className="action-buttons gap-4">
-        <Button
-          type="primary"
-          onClick={() => navigate("/admin/dashboard/product/create")}
-        >
-          Thêm
-        </Button>
         <Button
           style={{ backgroundColor: "#1dd1a1" }}
           type="primary"
@@ -100,13 +96,22 @@ const Product = () => {
 
   return (
     <div>
-      <Input.Search
-        size="large"
-        placeholder="Tìm kiếm..."
-        allowClear
-        onSearch={(value) => handleSearchChange(value)}
-        className="w-1/2"
-      />
+      <div className="flex items-end">
+        <Input.Search
+          size="large"
+          placeholder="Tìm kiếm..."
+          allowClear
+          onSearch={(value) => handleSearchChange(value)}
+          className="w-1/2"
+        />
+        <Button
+          className="w-[8rem] h-[4rem] ml-[2rem]"
+          type="primary"
+          onClick={() => navigate("/admin/dashboard/product/create")}
+        >
+          Thêm
+        </Button>
+      </div>
       <Table dataSource={dataSource} columns={columns} className="mt-6" />
     </div>
   );
