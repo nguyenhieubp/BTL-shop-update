@@ -3,7 +3,7 @@ import "./Navbar.scss";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getCartTotal } from "../../store/cartSlice";
-import { getUserById } from "../../store/loginSlice";
+import { getUserById, getUserCurrent } from "../../store/loginSlice";
 import { FaCartPlus, FaShippingFast, FaSignOutAlt } from "react-icons/fa";
 import {
   AiOutlineHeart,
@@ -16,15 +16,20 @@ import { Affix } from "antd";
 
 const Navbar = () => {
   const navigator = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
   const user = useSelector((state) => state.login.userCurrent?.email);
   const cartProducts = useSelector((state) => state.cart.carts);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getUserCurrent(localStorage.getItem("userId")));
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("userId");
     navigator("/login");
   };
+
+  console.log(user);
 
   return (
     <nav>
@@ -63,23 +68,11 @@ const Navbar = () => {
                   </div>
                   <p
                     onClick={handleLogout}
-                    className="text-black cursor-pointer"
+                    className="text-black cursor-pointer my-[2rem]"
                   >
-                    Đăng Xuất
+                    {user ? " Đăng Xuất" : "Đăng nhập"}
                   </p>
                 </div>
-                <Link to="/cart" className="add-to-cart-btn flex">
-                  <div className="btn-txt fw-5">
-                    <AiOutlineHeart size={24} color="black" />
-                    {cartProducts.length > 0 ? (
-                      <span className="cart-count-value">
-                        {cartProducts.length}
-                      </span>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                </Link>
                 <Link to="/cart" className="add-to-cart-btn flex">
                   <div className="btn-txt fw-5">
                     <AiOutlineShopping size={24} color="black" />

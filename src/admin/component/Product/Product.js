@@ -1,7 +1,7 @@
 // Product.js
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./Product.css";
 import { fetchProducts, deleteProduct } from "../../../store/productSlice";
 import { Button, Input, Modal, Table } from "antd";
@@ -9,7 +9,6 @@ import { Button, Input, Modal, Table } from "antd";
 const Product = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const { confirm } = Modal;
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -48,7 +47,7 @@ const Product = () => {
     title: x.title,
     description: x.description,
     price: Number(x.price).toLocaleString(),
-    category: x.category.name,
+    category: x?.category?.name,
     actions: (
       <div className="action-buttons gap-4">
         <Button

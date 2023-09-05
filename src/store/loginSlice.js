@@ -82,17 +82,26 @@ export const getUserCurrent = createAsyncThunk(
 
 export const updateUser = createAsyncThunk(
   "login/updateUser",
-  async (user, thunkAPI) => {
+  async (data, thunkAPI) => {
+    const { id, currentPassword, newPassword } = data;
+
     try {
-      const response = await axios.put(
-        `http://localhost:3000/users/${user.id}`,
+      const response = await axios.get(`http://localhost:3000/users/${id}`);
+      const user = response.data;
+
+      if (user.password !== currentPassword) {
+        throw new Error("Current password is incorrect!");
+      }
+
+      const updatedResponse = await axios.put(
+        `http://localhost:3000/users/${id}`,
         {
           email: user.email,
-          password: user.password,
+          password: newPassword,
         }
       );
-      const users = response.data;
-      return users;
+
+      return updatedResponse.data;
     } catch (error) {
       console.log("Failed to update", error);
       return thunkAPI.rejectWithValue({ error: error.message });

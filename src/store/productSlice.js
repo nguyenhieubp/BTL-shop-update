@@ -115,12 +115,14 @@ export const createProduct = (product) => async (dispatch) => {
 };
 
 export const updateProduct = (product) => async (dispatch) => {
+  console.log("update", product);
   try {
     const response = await axios.put(
       `http://localhost:3000/products/${product.id}`,
       product
     );
-    dispatch(editProduct(response.data));
+    console.log(response);
+    dispatch(fetchProducts());
   } catch (error) {
     console.error(error);
   }

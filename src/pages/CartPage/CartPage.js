@@ -14,6 +14,7 @@ import UserLayout from "../../admin/layouts/UserLayout";
 import { getUserCurrent } from "../../store/loginSlice";
 
 const CartPage = () => {
+  window.scroll(0, 0);
   const dispatch = useDispatch();
   const navigation = useNavigate();
   const [itemOffset, setItemOffset] = useState(0);

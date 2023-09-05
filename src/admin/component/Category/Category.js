@@ -21,6 +21,7 @@ import {
 export const Category = () => {
   const dispatch = useDispatch();
   const categories = useSelector((state) => state.category.category);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
@@ -118,6 +119,13 @@ export const Category = () => {
         </Popconfirm>
       ),
     },
+    {
+      title: "Danh sách sản phẩm",
+      key: "products",
+      render: (text, record) => (
+        <a href={`/admin/dashboard/product/${record.id}`}>Xem sản phẩm</a>
+      ),
+    },
   ];
 
   const onFinish = (values) => {
@@ -144,13 +152,12 @@ export const Category = () => {
   };
 
   const onFinishEdit = (values) => {
-    console.log(values);
     const updatedCategoryData = {
       name: values.category_name,
       image: file[0],
       isShowHome: true,
     };
-
+    console.log(editCategory.id);
     dispatch(
       editCategory({
         id: editingCategory.id,
@@ -162,11 +169,11 @@ export const Category = () => {
 
   return (
     <div>
-      <div className="flex">
+      <div className="flex ">
         <h1>Category</h1>
         <Button
           onClick={() => setIsModalOpen(true)}
-          className="ml-[2rem]"
+          className="ml-[2rem] mt-[2rem]"
           type="primary"
         >
           Thêm

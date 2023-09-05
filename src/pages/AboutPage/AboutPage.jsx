@@ -1,6 +1,7 @@
 import UserLayout from "../../admin/layouts/UserLayout";
 
 export default function AboutPage() {
+  window.scroll(0, 0);
   return (
     <UserLayout>
       <div className="py-28">

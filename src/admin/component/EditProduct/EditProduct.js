@@ -41,7 +41,7 @@ const EditProduct = () => {
         title: value.title,
         description: value.description,
         price: value.price,
-        category: value.category,
+        categoryId: value.category,
         images: image.length > 0 ? image : product.images,
         id: idProduct,
       })

@@ -1,15 +1,14 @@
-// EditUser.js
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaLock, FaUser } from "react-icons/fa";
 import "./EditUser.css";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserById, updateUser } from "../../../store/loginSlice";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, notification } from "antd";
 import validators from "../../../utils/validators";
 
 const EditUser = () => {
-  const navigation = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { email: encodedEmail } = useParams();
   const email = decodeURIComponent(encodedEmail);
@@ -19,27 +18,23 @@ const EditUser = () => {
   }, [dispatch, email]);
 
   const { userUpdate } = useSelector((state) => state.login);
+  const [isCurrentPasswordInvalid, setIsCurrentPasswordInvalid] =
+    useState(false);
+  const handleSubmit = (values) => {
+    if (values.currentPassword !== userUpdate.password) {
+      setIsCurrentPasswordInvalid(true);
+      return;
+    }
 
-  const [formData, setFormData] = useState(userUpdate);
-
-  useEffect(() => {
-    setFormData(userUpdate);
-  }, [userUpdate]);
-
-  const handleSubmit = (value) => {
     dispatch(
       updateUser({
         id: email,
-        email: value.email,
-        password: value.password,
+        email: values.email,
+        password: values.newPassword,
       })
     );
-    navigation("/admin/dashboard/user");
-  };
 
-  const [showPassword, setShowPassword] = useState(false);
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
+    navigate("/admin/dashboard/user");
   };
 
   return (
@@ -47,16 +42,11 @@ const EditUser = () => {
       <div>CẬP NHẬT NGƯỜI DÙNG</div>
       <Form
         onFinish={handleSubmit}
-        fields={[
-          {
-            name: ["email"],
-            value: userUpdate?.email,
-          },
-          {
-            name: ["password"],
-            value: userUpdate?.password,
-          },
-        ]}
+        initialValues={{
+          email: userUpdate?.email,
+          currentPassword: "",
+          newPassword: "",
+        }}
         className="col-start-2 col-end-3"
       >
         <Form.Item
@@ -64,7 +54,6 @@ const EditUser = () => {
           labelCol={{ span: 24 }}
           wrapperCol={{ span: 24 }}
           name="email"
-          hasFeedback
           rules={[
             {
               required: true,
@@ -72,13 +61,10 @@ const EditUser = () => {
             },
             {
               validator(_, value) {
-                return new Promise((resolve, reject) => {
-                  if (!validators.email.test(value)) {
-                    reject("Không đúng định dạng email !");
-                  } else {
-                    resolve();
-                  }
-                });
+                if (!validators.email.test(value)) {
+                  return Promise.reject("Không đúng định dạng email !");
+                }
+                return Promise.resolve();
               },
             },
           ]}
@@ -86,25 +72,45 @@ const EditUser = () => {
           <Input prefix={<FaUser />} placeholder="Email" size="large" />
         </Form.Item>
         <Form.Item
-          label="Mật khẩu"
+          label="Mật khẩu hiện tại"
           labelCol={{ span: 24 }}
           wrapperCol={{ span: 24 }}
-          name="password"
+          name="currentPassword"
           hasFeedback
+          validateStatus={isCurrentPasswordInvalid ? "error" : ""}
+          help={
+            isCurrentPasswordInvalid ? "Mật khẩu hiện tại không chính xác!" : ""
+          }
           rules={[
             {
               required: true,
-              message: "Vui lòng nhập mật khẩu !",
+              message: "Vui lòng nhập mật khẩu hiện tại!",
+            },
+          ]}
+        >
+          <Input.Password
+            prefix={<FaLock />}
+            size="large"
+            placeholder="Mật khẩu hiện tại"
+            onChange={() => setIsCurrentPasswordInvalid(false)} // Đặt lại khi người dùng thay đổi giá trị
+          />
+        </Form.Item>
+        <Form.Item
+          label="Mật khẩu Mới"
+          labelCol={{ span: 24 }}
+          wrapperCol={{ span: 24 }}
+          name="newPassword"
+          rules={[
+            {
+              required: true,
+              message: "Vui lòng nhập mật khẩu mới!",
             },
             {
               validator(_, value) {
-                return new Promise((resolve, reject) => {
-                  if (validators.space.test(value)) {
-                    reject("Không bao gồm khoảng trắng ở đầu !");
-                  } else {
-                    resolve();
-                  }
-                });
+                if (validators.space.test(value)) {
+                  return Promise.reject("Không bao gồm khoảng trắng ở đầu !");
+                }
+                return Promise.resolve();
               },
             },
           ]}
@@ -112,7 +118,7 @@ const EditUser = () => {
           <Input.Password
             prefix={<FaLock />}
             size="large"
-            placeholder="Password"
+            placeholder="Mật khẩu mới"
           />
         </Form.Item>
         <Form.Item>

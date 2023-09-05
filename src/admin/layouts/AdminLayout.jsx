@@ -1,8 +1,9 @@
 import { Affix, Breadcrumb, Layout, Menu } from "antd";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import logo from "../../assets/images/error.png";
 import { FaBox, FaHome, FaShoppingCart, FaUserAlt } from "react-icons/fa";
+import { AiOutlineContacts } from "react-icons/ai";
+import { BiCategoryAlt } from "react-icons/bi";
 import { useSelector } from "react-redux";
 import { CiLogout } from "react-icons/ci";
 const { Header, Content, Footer, Sider } = Layout;
@@ -42,7 +43,12 @@ function AdminLayout(props) {
     getItem(
       <Link to={"/admin/dashboard/category"}>Category</Link>,
       "/admin/dashboard/category",
-      <FaShoppingCart size={18} />
+      <BiCategoryAlt size={18} />
+    ),
+    getItem(
+      <Link to={"/admin/dashboard/contact"}>Contact</Link>,
+      "/admin/dashboard/contact",
+      <AiOutlineContacts className="text-white" size={18} />
     ),
   ];
 
